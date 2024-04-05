@@ -6,9 +6,6 @@ import plotting
 import character_action
 import physics_calculator
 
-HAX_STICK_POSITION = 1.0
-HUMAN_STICK_POISITION = 0.9875
-
 def get_characters_to_follow_action(characters, characterAction):
     characterActionOutputList = []
     for character in characters:
@@ -21,7 +18,7 @@ def get_characters_to_follow_action(characters, characterAction):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     characters = create_characters()
-    characterAction = character_action.GetRunFullJumpCharacterAction()
+    characterAction = character_action.GetRunCharacterAction()
     characterActionOutputList = get_characters_to_follow_action(characters, characterAction)
     plotting.PlotAction(characterAction, characterActionOutputList)
 

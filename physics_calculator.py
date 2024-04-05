@@ -29,7 +29,7 @@ def get_character_to_follow_action(character, characterAction):
 def get_run_velocities(character, characterAction, characterActionOutput):
     # todo: Have velocity of frames leading up to terminal run velocity - for now just have terminal velocity.
     # Run for 10 frames
-    for frame in range(0, 10):
+    for frame in range(0, characterAction.ActionLength):
         velocity = characterActionOutput.get_last_velocity()
         # First frame of dash is the same velocity as whatever the previous frames velocity was
         # e.g. if wavedashed and previous frame speed was 1.4 - the first frame of dash speed is 1.4

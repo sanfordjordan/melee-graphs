@@ -10,6 +10,9 @@ Change all this to new input - an array with the inputs for each frame:
 Each frame has inputs for [<stick position x>, <stick position y>, <jump pressed>, <shield pressed>]
 """
 
+HAX_STICK_POSITION = 1.0
+HUMAN_STICK_POSITION = 0.9875
+
 class JumpType(Enum):
     NONE = 0
     JUMPSQUAT = 1
@@ -20,10 +23,11 @@ class CharacterAction(object):
     WaveDash = False
     Run = False
     Jump = JumpType.NONE
-    DashRunStickPosition = 1.0
-    LastSquatFrameStickPosition = 1.0 # This can determine if the forawrd or back jump animation plays, and the velocity on the first jump frame
-    AerialDriftStickPosition = 1.0
+    DashRunStickPosition = HAX_STICK_POSITION
+    LastSquatFrameStickPosition = HAX_STICK_POSITION # This can determine if the forward or back jump animation plays, and the velocity on the first jump frame
+    AerialDriftStickPosition = HAX_STICK_POSITION
     FastFall = False
+    ActionLength = 20
 
     def SetFromCharacterAction(self, action):
         self.WaveDash = action.WaveDash
@@ -34,6 +38,11 @@ class CharacterAction(object):
         self.WaAerialDriftStickPositionveDash = action.AerialDriftStickPosition
         self.FastFall = action.WaveDash
 
+def GetRunCharacterAction():
+    characterAction = CharacterAction()
+    characterAction.Run = True
+    characterAction.Jump = JumpType.NONE
+    return characterAction
 
 def GetRunSquatCharacterAction():
     characterAction = CharacterAction()
