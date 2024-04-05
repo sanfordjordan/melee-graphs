@@ -1,13 +1,44 @@
 import matplotlib.pyplot as plt
 from character_action import JumpType
+import numpy as np
+import pandas as pd
 
 def PlotAction(characterAction, characterActionOutputList):
+    #CsvVelocities(characterActionOutputList)
+    CsvDistances(characterActionOutputList)
     PlotVelocities(characterAction, characterActionOutputList)
     PlotDistances(characterAction, characterActionOutputList)
+    
 
 def Plot(x_values, y_values, plotLabel):
     plt.plot(x_values, y_values, label=plotLabel)
     plt.text(x_values[len(x_values)-1], y_values[len(y_values) - 1], plotLabel, rotation=0)
+    
+def CsvVelocities(characterActionOutputList):
+    csvVelocities = []
+
+    for character in characterActionOutputList:
+        character_velocities = [ '%.2f' % elem for elem in character.VelocityArray ]
+        character_velocities.insert(0,character.Character.value)
+        csvVelocities.append(character_velocities)
+        
+    arr = np.array(csvVelocities)
+    #arr_t = arr.T
+    df = pd.DataFrame(arr)
+    df.to_csv("velocity_output.csv")
+    
+def CsvDistances(characterActionOutputList):
+    csvDistances = []
+
+    for character in characterActionOutputList:
+        character_distances = [ '%.2f' % elem for elem in character.distance ]
+        character_distances.insert(0,character.Character.value)
+        csvDistances.append(character_distances)
+        
+    arr = np.array(csvDistances)
+    #arr_t = arr.T
+    df = pd.DataFrame(arr)
+    df.to_csv("distance_output5.csv")
 
 def PlotVelocities(characterAction, characterActionOutputList):
 
@@ -25,6 +56,8 @@ def PlotVelocities(characterAction, characterActionOutputList):
     plt.ylabel('Velocity')
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.show()
+    
+    
 
 def PlotDistances(characterAction, characterActionOutputList):
 
@@ -39,6 +72,8 @@ def PlotDistances(characterAction, characterActionOutputList):
     plt.ylabel('Distance')
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.show()
+    
+    
 
 def get_title(characterAction):
     title = "Characters"

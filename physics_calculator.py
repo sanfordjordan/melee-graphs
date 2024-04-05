@@ -29,7 +29,7 @@ def get_character_to_follow_action(character, characterAction):
 def get_run_velocities(character, characterAction, characterActionOutput):
     # todo: Have velocity of frames leading up to terminal run velocity - for now just have terminal velocity.
     # Run for 10 frames
-    for frame in range(0, characterAction.ActionLength):
+    for frame in range(0, 20):
         velocity = characterActionOutput.get_last_velocity()
         # First frame of dash is the same velocity as whatever the previous frames velocity was
         # e.g. if wavedashed and previous frame speed was 1.4 - the first frame of dash speed is 1.4
@@ -81,7 +81,7 @@ def get_air_velocities(character, characterAction, characterActionOutput):
     lastSquatFrameVelocity = characterActionOutput.get_last_velocity()
     lastSquatFrameStickPosition = characterAction.LastSquatFrameStickPosition
     aerialDriftStickPosition = characterAction.AerialDriftStickPosition
-    number_of_frames = 70
+    number_of_frames = 30 - len(characterActionOutput.VelocityArray)
 
     for frame in range(0, number_of_frames):
         if frame == 0:
