@@ -74,6 +74,6 @@ class CharacterActionOutput(object):
         return 0
 
     def __init__(self, character):
-        self.Character = character.CharacterNameEnum
+        self.Character = character
         self.VelocityArray = []
         self.DistanceArray = []

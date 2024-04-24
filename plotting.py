@@ -7,9 +7,8 @@ from datetime import datetime
 def PlotActions(characterActions, characterActionOutputList):
     CsvVelocities(characterActionOutputList)
     CsvDistances(characterActionOutputList)
-    PlotVelocities(characterActions, characterActionOutputList)
-    PlotDistances(characterActions, characterActionOutputList)
-    
+    #PlotVelocities(characterActions, characterActionOutputList)
+    #PlotDistances(characterActions, characterActionOutputList)
 
 def Plot(x_values, y_values, plotLabel):
     plt.plot(x_values, y_values, label=plotLabel)
@@ -20,9 +19,8 @@ def CsvVelocities(characterActionOutputList):
 
     for character in characterActionOutputList:
         character_velocities = [ '%.2f' % elem for elem in character.VelocityArray ]
-        character_velocities.insert(0,character.Character.value)
+        character_velocities.insert(0,character.Character.CharacterNameEnum.value)
         csvVelocities.append(character_velocities)
-
         
     arr = np.array(csvVelocities)
     #arr_t = arr.T
@@ -34,7 +32,7 @@ def CsvDistances(characterActionOutputList):
 
     for character in characterActionOutputList:
         character_distances = [ '%.2f' % elem for elem in character.DistanceArray ]
-        character_distances.insert(0,character.Character.value)
+        character_distances.insert(0,character.Character.CharacterNameEnum.value)
         csvDistances.append(character_distances)
         
     arr = np.array(csvDistances)
@@ -48,9 +46,9 @@ def PlotVelocities(characterActions, characterActionOutputList):
         x_values = range(0, len(character.VelocityArray))
         y_values = character.VelocityArray
         
-        Plot(x_values, y_values, character.Character.value)
+        Plot(x_values, y_values, character.Character.CharacterNameEnum.value)
 
-        print(character.Character.value)
+        print(character.Character.CharacterNameEnum.value)
         print(y_values)
 
     plt.title(get_title(characterActions))
@@ -67,7 +65,7 @@ def PlotDistances(characterActions, characterActionOutputList):
         x_values = range(0, len(character.DistanceArray))
         y_values = character.DistanceArray
 
-        Plot(x_values, y_values, character.Character.value)
+        Plot(x_values, y_values, character.Character.CharacterNameEnum.value)
 
     plt.title(get_title(characterActions))
     plt.xlabel('Frames')
