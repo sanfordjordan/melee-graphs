@@ -1,40 +1,29 @@
-from character_action import JumpType, CharacterActionOutput
+from character_action import ActionType, JumpType, CharacterActionOutput
 import numpy as np
 
 # get_character_to_follow actions
-def charcter_plays_actions(character, inputs):
+def get_character_to_follow_actions(character, characterActions):
     characterActionOutput = CharacterActionOutput(character)
-
-
+    
+    for action in characterActions:
+        if(action.Action == ActionType.RUN):
+            get_run_velocities(character, action, characterActionOutput)
+        elif(action.Action == ActionType.FULLJUMP):
+            get_jumpsquat_velocities(character, action, characterActionOutput)
+            get_air_velocities(character, action, characterActionOutput)
 
     return characterActionOutput
 
-def get_character_to_follow_action(character, characterAction):
-    characterActionOutput = CharacterActionOutput(character)
-    
-    if(characterAction.Run):
-        get_run_velocities(character, characterAction, characterActionOutput)
-    
-    if(characterAction.Jump != JumpType.NONE):
-        get_jumpsquat_velocities(character, characterActionOutput)
-
-    if(characterAction.Jump == JumpType.FULLJUMP
-            or characterAction.Jump == JumpType.SHORTHOP):
-        get_air_velocities(character, characterAction, characterActionOutput)
-
-    characterActionOutput.distance = get_distance_travelled(characterActionOutput)
-
-    return characterActionOutput
-
-def get_run_velocities(character, characterAction, characterActionOutput):
+def get_run_velocities(character, action, characterActionOutput):
     # todo: Have velocity of frames leading up to terminal run velocity - for now just have terminal velocity.
-    # Run for 10 frames
-    for frame in range(0, 20):
+    # Run for ActionLength number of frames
+    for frame in range(0, action.ActionLength):
         velocity = characterActionOutput.get_last_velocity()
         # First frame of dash is the same velocity as whatever the previous frames velocity was
         # e.g. if wavedashed and previous frame speed was 1.4 - the first frame of dash speed is 1.4
         if frame == 0:
             characterActionOutput.VelocityArray.append(velocity)
+            characterActionOutput.DistanceArray.append(0)
             continue
 
         if frame == 1:
@@ -42,7 +31,7 @@ def get_run_velocities(character, characterAction, characterActionOutput):
             velocity = character.dashInitialVelocity
     
         velocity_smaller = velocity - character.friction
-        velocity_larger = velocity + (character.dashAndRunAccelerationA * characterAction.DashRunStickPosition) + character.dashAndRunAccelerationB
+        velocity_larger = velocity + (character.dashAndRunAccelerationA * action.DashRunStickPosition) + character.dashAndRunAccelerationB
 
         # Lower dashInitialVelocity if it is higher than dashAndRunTerminalVelocity
         if (velocity > character.dashAndRunTerminalVelocity):
@@ -53,13 +42,16 @@ def get_run_velocities(character, characterAction, characterActionOutput):
             velocity = min(velocity_larger, character.dashAndRunTerminalVelocity)
 
         characterActionOutput.VelocityArray.append(velocity)
+        characterActionOutput.DistanceArray.append(characterActionOutput.get_last_distance() + velocity)
 
     return
 
 
-def get_jumpsquat_velocities(character, characterActionOutput):
+def get_jumpsquat_velocities(character, action, characterActionOutput):
+    
+    jumpSquatLength = min(action.ActionLength, character.jumpStartup)
     # Should be grounded for jumpsquat
-    for frame in range(0, character.jumpStartup):
+    for frame in range(0, jumpSquatLength):
         currentVelocity = characterActionOutput.get_last_velocity()
 
         # Friction amount depends on current speed
@@ -73,15 +65,20 @@ def get_jumpsquat_velocities(character, characterActionOutput):
         new_velocity = friction_applied * np.sign(currentVelocity) if friction_applied > 0 else 0
 
         characterActionOutput.VelocityArray.append(new_velocity)
+        characterActionOutput.DistanceArray.append(characterActionOutput.get_last_distance() + new_velocity)
     return
 
-def get_air_velocities(character, characterAction, characterActionOutput):
+def get_air_velocities(character, action, characterActionOutput):
 
     # Ensure last frame velocity was from jumpsquat
     lastSquatFrameVelocity = characterActionOutput.get_last_velocity()
-    lastSquatFrameStickPosition = characterAction.LastSquatFrameStickPosition
-    aerialDriftStickPosition = characterAction.AerialDriftStickPosition
-    number_of_frames = 30 - len(characterActionOutput.VelocityArray)
+    lastSquatFrameStickPosition = action.LastSquatFrameStickPosition
+    aerialDriftStickPosition = action.AerialDriftStickPosition
+    
+    # Remainder number of frames in action for jump
+    number_of_frames = action.ActionLength - character.jumpStartup
+    if(number_of_frames < 0):
+        number_of_frames = 0
 
     for frame in range(0, number_of_frames):
         if frame == 0:
@@ -97,17 +94,6 @@ def get_air_velocities(character, characterAction, characterActionOutput):
                 current_velocity = character.maxAerialHVelocity * aerialDriftStickPosition
 
         characterActionOutput.VelocityArray.append(current_velocity)
+        characterActionOutput.DistanceArray.append(characterActionOutput.get_last_distance() + current_velocity)
 
     return
-
-
-def get_distance_travelled(characterActionOutput):
-    velocity_array = characterActionOutput.VelocityArray
-    distance = []
-    total_distance = 0
-    for velocity in velocity_array:
-        total_distance += velocity
-        distance.append(total_distance)
-
-    return distance
-

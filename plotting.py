@@ -1,13 +1,14 @@
 import matplotlib.pyplot as plt
-from character_action import JumpType
+from character_action import ActionType, JumpType
 import numpy as np
 import pandas as pd
+from datetime import datetime
 
-def PlotAction(characterAction, characterActionOutputList):
-    #CsvVelocities(characterActionOutputList)
+def PlotActions(characterActions, characterActionOutputList):
+    CsvVelocities(characterActionOutputList)
     CsvDistances(characterActionOutputList)
-    PlotVelocities(characterAction, characterActionOutputList)
-    PlotDistances(characterAction, characterActionOutputList)
+    PlotVelocities(characterActions, characterActionOutputList)
+    PlotDistances(characterActions, characterActionOutputList)
     
 
 def Plot(x_values, y_values, plotLabel):
@@ -21,26 +22,27 @@ def CsvVelocities(characterActionOutputList):
         character_velocities = [ '%.2f' % elem for elem in character.VelocityArray ]
         character_velocities.insert(0,character.Character.value)
         csvVelocities.append(character_velocities)
+
         
     arr = np.array(csvVelocities)
     #arr_t = arr.T
     df = pd.DataFrame(arr)
-    df.to_csv("velocity_output.csv")
+    df.to_csv("velocity_output_" + GetDateTimeString() + ".csv")
     
 def CsvDistances(characterActionOutputList):
     csvDistances = []
 
     for character in characterActionOutputList:
-        character_distances = [ '%.2f' % elem for elem in character.distance ]
+        character_distances = [ '%.2f' % elem for elem in character.DistanceArray ]
         character_distances.insert(0,character.Character.value)
         csvDistances.append(character_distances)
         
     arr = np.array(csvDistances)
     #arr_t = arr.T
     df = pd.DataFrame(arr)
-    df.to_csv("distance_output5.csv")
+    df.to_csv("distance_output_" + GetDateTimeString() + ".csv")
 
-def PlotVelocities(characterAction, characterActionOutputList):
+def PlotVelocities(characterActions, characterActionOutputList):
 
     for character in characterActionOutputList:
         x_values = range(0, len(character.VelocityArray))
@@ -51,7 +53,7 @@ def PlotVelocities(characterAction, characterActionOutputList):
         print(character.Character.value)
         print(y_values)
 
-    plt.title(get_title(characterAction))
+    plt.title(get_title(characterActions))
     plt.xlabel('Frames')
     plt.ylabel('Velocity')
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
@@ -59,15 +61,15 @@ def PlotVelocities(characterAction, characterActionOutputList):
     
     
 
-def PlotDistances(characterAction, characterActionOutputList):
+def PlotDistances(characterActions, characterActionOutputList):
 
     for character in characterActionOutputList:
-        x_values = range(0, len(character.distance))
-        y_values = character.distance
+        x_values = range(0, len(character.DistanceArray))
+        y_values = character.DistanceArray
 
         Plot(x_values, y_values, character.Character.value)
 
-    plt.title(get_title(characterAction))
+    plt.title(get_title(characterActions))
     plt.xlabel('Frames')
     plt.ylabel('Distance')
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
@@ -75,13 +77,16 @@ def PlotDistances(characterAction, characterActionOutputList):
     
     
 
-def get_title(characterAction):
+def get_title(actions):
     title = "Characters"
-    if(characterAction.Run): title += " Run"
-    if(characterAction.Jump == JumpType.JUMPSQUAT): title += " & JumpSquat"
-    if(characterAction.Jump == JumpType.FULLJUMP): title += " & FullJump"
-    if(characterAction.Jump == JumpType.SHORTHOP): title += " & ShortHop"
+    for action in actions:
+        if(action.Action == ActionType.RUN): title += " Run"
+        if(action.Action == ActionType.FULLJUMP): title += " & Jump"
     return title
+
+def GetDateTimeString():
+    now = datetime.now()
+    return now.strftime("%Y%m%d_%H%M%S")
 
 """
 def plot_dividers(characterAction):
